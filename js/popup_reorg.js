@@ -168,6 +168,7 @@ $(function () {
         $('#source-label').text("This publication's bias score is: ");
         $('#host-bias').text(hostBias);
         $('#current-vote-count').text(votes + 'votes have been submitted');
+        $('#divider1').show();
         $('#article-label').text("This article's crowdsourced bias score is: ");
         $('#current-crowdsource-rating').text(getAbsValue(crowdSourceScore.val()));
         $('#current-crowdsource-rating').css("color", getRatingColor(crowdSourceScore));
