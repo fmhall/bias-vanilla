@@ -12,3 +12,5 @@ firebase.database().ref('/articles/').once('value').then(function(snapshot) {
   var username = (snapshot.val());
   console.log(username);
 });
+
+
