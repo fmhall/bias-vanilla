@@ -1,5 +1,6 @@
 //JQuery function
 $(function () {
+
     console.log('function running');
     getCurrentTabUrl(function(url){
         getTabSource(url, function(hostName, pathName){
