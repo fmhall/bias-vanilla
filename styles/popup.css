@@ -6,6 +6,7 @@ body {
 
 .text-right {
     padding-left: 10px;
+    padding-right: 7px;
     text-align: left;
 }
 
@@ -18,17 +19,26 @@ body {
     text-align: center;
     align-content: center;
 }
+.horizontal-box {
+    display: flex;
+    flex-direction: row;
+}
 
 #app {
     display: none;
 }
 
 #plus-button {
-    color: blue;
+    color: black;
 }
 
 #minus-button {
-    color: orangered;
+    color: black;
+}
+.score {
+    font-size: 20px;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
 }
 
 .divider {
