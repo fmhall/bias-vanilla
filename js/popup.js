@@ -1,5 +1,9 @@
 $(function () {
-
+  // firebase.database().ref('/articles/').once('value').then(function(snapshot) {
+  //   var username = (snapshot.val());
+  //   console.log(username);
+  // });
+  
   var currentUserRating = 0;
   // ------------ Start Utility Functions -------------
   function firebaseRef () {
@@ -7,7 +11,7 @@ $(function () {
   }
 
   function bindValueToRating() {
-    currentArticleRef().has
+    //currentArticleRef().has
     data = data.val();
     var currentRating = data.crowdSourceBias;
     var votes = data.votes;
