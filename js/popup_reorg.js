@@ -4,7 +4,9 @@ $(function () {
     console.log('function running');
     getCurrentTabUrl(function(url){
         getTabSource(url, function(hostName, pathName){
+            console.log('back to main');
             if (hostName !== null && pathName!== null){
+                console.log('not null');
                 pageLoad(hostName, pathName); 
             }
         });
@@ -65,11 +67,14 @@ $(function () {
   
     // ------------END URL FUNCTION -------------
     
-    function pageLoad(hostName, pathName){
+    async function pageLoad(hostName, pathName){
         //get the url
         const currentArticle = processUrl(hostName, pathName);
+        console.log("article key: ", currentArticle.articleKey);
+        console.log("hostnameKey: ", currentArticle.hostnameKey);
         //is the source in the database?
-        var sourceInDatabase = checkForExistingSource(currentArticle.hostnameKey);
+        var sourceInDatabase = await checkForExistingSource(currentArticle.hostnameKey);
+        console.log("sourceInDatabase:", sourceInDatabase);
         if (sourceInDatabase){
             //source is in the database. Is the article in the database?
             var articleInDatabase = checkForExistingArticle(currentArticle.articleKey);
@@ -90,9 +95,11 @@ $(function () {
      // ------------ Start Utility Functions -------------
 
     function checkForExistingSource(hostnameKey){
-        var keyToCheck = "sources/" + hostnameKey;
+        console.log('entered, check for existing source');
+        var keyToCheck = "/sources/" + hostnameKey;
         var ref = firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
-            return (snapshot.exists()); //bool
+            console.log("snapshot val", snapshot.val());
+            return (snapshot.val() !== null); //bool
         });
     }
 
@@ -101,15 +108,19 @@ $(function () {
       }
 
     function checkForExistingArticle(articleKey){
-        firebaseRef().child(articleKey).once("value").then(function(data){
-            return (data.exists()); //bool
+        console.log('entered, check for existing article');
+        var keyToCheck = "/articles/" + articleKey;
+        console.log("articlekey:", articleKey);
+        var ref = firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
+            console.log("snapshot val", snapshot.val());
+            return (snapshot.val() !== null); //bool
         });
     }
 
     function getSourceBias(hostnameKey){
-        var keyToCheck = "sources/" + hostnameKey;
+        var keyToCheck = "/sources/" + hostnameKey;
         var ref = firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
-            return (snapshot.val()); //host bias score, integer
+        return snapshot.val();
         });
     }
 
@@ -122,23 +133,23 @@ $(function () {
     }
 
     function getVotes(articleKey){
-        var keyString = articleKey + '/votes';
-        firebaseRef().child(keyString).once("value").then(function(data){
-            return data.val();
+        var keyToCheck = "/articles/" + articleKey;
+        var ref = firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
+            return (snapshot.val().votes); 
         });
     }
 
     function getCrowdsourceScore(){
-        var keyString = articleKey + '/crowdSourceBias';
-        firebaseRef().child(keyString).once("value").then(function(data){
-            return data.val();
+        var keyToCheck = "/articles/" + articleKey;
+        var ref = firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
+            return (snapshot.val().crowdSourceBias); 
         });
     }
 
     function getHostBias(){
-        var keyString = articleKey + '/hostBias';
-        firebaseRef().child(keyString).once("value").then(function(data){
-            return data.val();
+        var keyToCheck = "/articles/" + articleKey;
+        var ref = firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
+            return (snapshot.val().hostBias); 
         });
     }
 
