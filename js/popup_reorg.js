@@ -12,13 +12,13 @@ $(function () {
         });
     });
 
-    function getCurrentTabUrl(callback){
+    async function getCurrentTabUrl(callback){
         console.log("getCurrentTabUrl entered:");
         var queryInfo = {
             active: true,
             currentWindow: true
         };
-        chrome.tabs.query(queryInfo, function(tabs){
+        await chrome.tabs.query(queryInfo, function(tabs){
             var tab = tabs[0];
             var url = tabs[0].url;
             console.log("url", url);
@@ -76,16 +76,21 @@ $(function () {
         var sourceInDatabase = await checkForExistingSource(currentArticle.hostnameKey);
         console.log("sourceInDatabase:", sourceInDatabase);
         if (sourceInDatabase){
+            console.log("sourced detected");
             //source is in the database. Is the article in the database?
-            var articleInDatabase = checkForExistingArticle(currentArticle.articleKey);
+            var articleInDatabase = await checkForExistingArticle(currentArticle.articleKey);
+            console.log("article in database", articleInDatabase);
             if (!articleInDatabase){
                 //article is not in the database.
-                var sourceBias = getSourceBias(currentArticle.hostnameKey);
-                addArticle(currentArticle.articleKey, sourceBias);
+                var sourceBias = await getSourceBias(currentArticle.hostnameKey);
+                await addArticle(currentArticle.articleKey, sourceBias);
             } //at this point, there is no difference 
-            var votes = getVotes(currentArticle.articleKey);
-            var crowdSourceScore = getCrowdsourceScore(currentArticle.articleKey);
-            var hostBias = getHostBias(currentArticle.articleKey);
+            var votes = await getVotes(currentArticle.articleKey);
+            console.log("votes",votes);
+            var crowdSourceScore = await getCrowdsourceScore(currentArticle.articleKey);
+            console.log("crowdSourceScore",crowdSourceScore);
+            var hostBias = await getSourceBias(currentArticle.hostnameKey);
+            console.log("hostBias",hostBias);
             bindExistingArticle(hostBias, votes, crowdSourceScore);
         } else {
            bindNoArticle();
@@ -94,34 +99,42 @@ $(function () {
     
      // ------------ Start Utility Functions -------------
 
-    function checkForExistingSource(hostnameKey){
+    async function checkForExistingSource(hostnameKey){
         console.log('entered, check for existing source');
         var keyToCheck = "/sources/" + hostnameKey;
-        var ref = firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
+        var exists = false;
+        var ref = await firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
             console.log("snapshot val", snapshot.val());
-            return (snapshot.val() !== null); //bool
+            exists = (snapshot.val() !== null);
         });
+        return exists; //bool
     }
 
     function firebaseRef () {
         return window.firebase.database().ref('/articles');
       }
 
-    function checkForExistingArticle(articleKey){
+    async function checkForExistingArticle(articleKey){
         console.log('entered, check for existing article');
         var keyToCheck = "/articles/" + articleKey;
         console.log("articlekey:", articleKey);
-        var ref = firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
+        var exists = false;
+        var ref = await firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
             console.log("snapshot val", snapshot.val());
-            return (snapshot.val() !== null); //bool
+            exists = (snapshot.val() !== null);
         });
+        return exists; //bool
     }
 
-    function getSourceBias(hostnameKey){
+    async function getSourceBias(hostnameKey){
+        console.log('entered get source bias');
         var keyToCheck = "/sources/" + hostnameKey;
-        var ref = firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
-        return snapshot.val();
+        var hostBias = 0;
+        var ref = await firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
+            hostBias = snapshot.val();
         });
+        return hostBias;
+
     }
 
     function addArticle(articleKey, hostBiasVal){
@@ -132,25 +145,22 @@ $(function () {
         });
     }
 
-    function getVotes(articleKey){
+    async function getVotes(articleKey){
         var keyToCheck = "/articles/" + articleKey;
-        var ref = firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
-            return (snapshot.val().votes); 
+        var votes = 0;
+        var ref = await firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
+            votes = snapshot.val().votes;
         });
+        return votes;
     }
 
-    function getCrowdsourceScore(){
+    async function getCrowdsourceScore(articleKey){
         var keyToCheck = "/articles/" + articleKey;
-        var ref = firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
-            return (snapshot.val().crowdSourceBias); 
+        var crowdSourceScore = 0;
+        var ref = await firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
+            crowdSourceScore = snapshot.val().crowdSourceBias;
         });
-    }
-
-    function getHostBias(){
-        var keyToCheck = "/articles/" + articleKey;
-        var ref = firebase.database().ref(keyToCheck).once("value").then(function(snapshot){
-            return (snapshot.val().hostBias); 
-        });
+        return crowdSourceScore; 
     }
 
     function bindExistingArticle(hostBias, votes, crowdSourceScore){
