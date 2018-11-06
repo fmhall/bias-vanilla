@@ -1,6 +1,6 @@
 //JQuery function
 $(function () {
-
+    var currentUserRating = 0;
     console.log('function running');
     getCurrentTabUrl(function(url){
         getTabSource(url, function(hostName, pathName){
@@ -167,9 +167,11 @@ $(function () {
         $('#app').show();
         $('#source-label').text("This publication's bias score is: ");
         $('#host-bias').text(hostBias);
-        $('#current-vote-count').text(votes + 'votes have been submitted');
+        $('#current-vote-count').text(votes + ' votes have been submitted');
         $('#article-label').text("This article's crowdsourced bias score is: ");
-        $('#current-crowdsource-rating').text(getAbsValue(crowdSourceScore.val()));
+        $('#current-crowdsource-rating-large').text(getAbsValue(crowdSourceScore));
+        $('#current-crowdsource-rating-large').css("color", getRatingColor(crowdSourceScore));
+        $('#current-crowdsource-rating').text(getAbsValue(crowdSourceScore));
         $('#current-crowdsource-rating').css("color", getRatingColor(crowdSourceScore));
     }
 
@@ -223,12 +225,16 @@ $(function () {
       if (currentUserRating <= 9.5){
         currentUserRating = currentUserRating + 0.5;
       }
+      $('#current-crowdsource-rating').text(getAbsValue(currentUserRating));
+      $('#current-crowdsource-rating').css("color", getRatingColor(currentUserRating));
     }
   
     function subtractUserRating() {
       if (currentUserRating >= -9.5){
         currentUserRating = currentUserRating - 0.5;
       }
+      $('#current-crowdsource-rating').text(getAbsValue(currentUserRating));
+      $('#current-crowdsource-rating').css("color", getRatingColor(currentUserRating));
     }
   
     function userSubmitsRating() {
